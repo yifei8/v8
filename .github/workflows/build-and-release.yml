@@ -16,18 +16,14 @@ jobs:
         uses: ashutoshvarma/setup-ninja@master
         with:
           version: 1.12.1
-      - name: Install v8 env
-        run: |
-          sudo apt update
-          sudo apt install ninja-build
-          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+      - name: Install Depot Tools
+        uses: newkdev/setup-depot-tools@v1.0.1
       - run: pwd
-      - run: echo "export PATH=$PATH:/home/runner/work/v8/v8/depot_tools" >> $GITHUB_ENV
       - run: ls -a
       - run: gclient
-      - run: /home/runner/work/v8/v8/depot_tools/fetch v8
+      - run: fetch v8
       - run: cd v8 && git checkout main
-      - run: cd v8 && /home/runner/work/v8/v8/depot_tools/gclient sync
+      - run: cd v8 && gclient sync
       - run: cd v8 && tools/dev/v8gen.py list
       - run: cd v8 && tools/dev/v8gen.py arm64.release -vv
       - run: ls -a
