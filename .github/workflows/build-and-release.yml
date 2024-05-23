@@ -31,13 +31,14 @@ jobs:
           $InstallLocation = Resolve-Path -Path $InstallLocation
           git clone $RepositoryUrl .
           "DEPOT_TOOLS=$InstallLocation" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-      - shell: bash
+      - name: Set Depot Tools PATH
+        shell: bash
         run: |
           echo "$DEPOT_TOOLS" >> $GITHUB_PATH
       - run: cd v8_build && gclient
       - run: cd v8_build && fetch v8
       - run: cd v8_build/v8 && git checkout main
-      - run: cd v8_build/v8 && git gclient sync
+      - run: cd v8_build/v8 && gclient sync
       - run: cd v8_build/v8 && tools/dev/v8gen.py arm64.release -vv
       - run: cd v8_build && ls -a
       - run: cd v8_build/v8 && ls -a
