@@ -41,7 +41,6 @@ jobs:
       - run: cd v8_build && gclient
       - run: cd v8_build && fetch v8
       - run: cd v8_build/v8 && git checkout main
-      - run: cd v8_build/v8 && gclient sync
       - run: cd v8_build/v8 && tools/dev/v8gen.py arm64.release -vv
       - run: cd v8_build && ls -a
       - run: cd v8_build/v8 && ls -a
@@ -49,17 +48,17 @@ jobs:
       - run: rm v8_build/.gclient
       - run: |
           echo 'solutions = [
-            { "name"        : '\''v8'\'',
-               "url"         : '\''https://chromium.googlesource.com/v8/v8.git'\'',
-               "deps_file"   : '\''DEPS'\'',
-               "managed"     : True,
-               "custom_deps" : {
-                       },
-               "custom_vars": {},
-            },
-          ]
-          target_os = ["android"]' > v8_build/.gclient
+              {
+                "name": "v8",
+                "url": "https://chromium.googlesource.com/v8/v8.git",
+                "deps_file": "DEPS",
+                "managed": False,
+                "custom_deps": {},
+              },
+            ]
+            target_os = ["android"]' > v8_build/.gclient
       - run: cat v8_build/.gclient
+      - run: cd v8_build/v8 && gclient sync
       - run: cat v8_build/v8/out.gn/arm64.release/args.gn
       - run: rm v8_build/v8/out.gn/arm64.release/args.gn
       - run: |
