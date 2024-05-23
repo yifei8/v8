@@ -1,6 +1,6 @@
 name: Build and release v8
 
-on: workflow_dispatch
+on: push
 
 jobs:
   build_android_arm64:
@@ -16,6 +16,11 @@ jobs:
         uses: ashutoshvarma/setup-ninja@master
         with:
           version: 1.12.1
+      - name: Set Work Dir
+        run: |
+          pwd
+          mkdir v8_build
+          ls -a
       - name: Install Depot Tools
         shell: pwsh
         run: |
@@ -29,16 +34,18 @@ jobs:
       - shell: bash
         run: |
           echo "$DEPOT_TOOLS" >> $GITHUB_PATH
-      - run: pwd
       - run: ls -a
-      - run: gclient
-      - run: fetch v8
-      - run: cd v8 && git checkout main
-      - run: cd v8 && gclient sync
-      - run: cd v8 && tools/dev/v8gen.py list
-      - run: cd v8 && tools/dev/v8gen.py arm64.release -vv
+      - run: cd v8_build
       - run: ls -a
-      - run: cat .gclient
+      - name: Fetch v8 & sync
+        run: |
+          cd v8_build
+          gclient
+          fetch v8
+          cd v8 && git checkout main && gclient sync
+      - run: cd v8_build && v8/tools/dev/v8gen.py arm64.release -vv
+      - run: ls -a
+      - run: cd v8_build && cat .gclient
       - run: rm .gclient
       - run: |
           echo 'solutions = [
