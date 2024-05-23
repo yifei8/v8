@@ -1,0 +1,80 @@
+name: Build and release v8
+
+on: workflow_dispatch
+
+jobs:
+  build_android_arm64:
+    name: android-arm64
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8.10'
+      - name: Setup Ninja
+        uses: ashutoshvarma/setup-ninja@master
+        with:
+          version: 1.12.1
+      - name: Install v8 env
+        run: |
+          sudo apt update
+          sudo apt install ninja-build
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+      - run: pwd
+      - run: echo "export PATH=\$PATH:/home/runner/work/v8/v8/depot_tools" >> $GITHUB_ENV
+      - run: ls -a
+      - run: gclient
+      - run: /home/runner/work/v8/v8/depot_tools/fetch v8
+      - run: cd v8 && git checkout main
+      - run: cd v8 && /home/runner/work/v8/v8/depot_tools/gclient sync
+      - run: cd v8 && tools/dev/v8gen.py list
+      - run: cd v8 && tools/dev/v8gen.py arm64.release -vv
+      - run: ls -a
+      - run: cat .gclient
+      - run: rm .gclient
+      - run: |
+          echo 'solutions = [
+            { "name"        : '\''v8'\'',
+               "url"         : '\''https://chromium.googlesource.com/v8/v8.git'\'',
+               "deps_file"   : '\''DEPS'\'',
+               "managed"     : True,
+               "custom_deps" : {
+                       },
+               "custom_vars": {},
+            },
+          ]
+          target_os = ["android"]' > .gclient
+      - run: cat .gclient
+      - run: rm v8/out.gn/arm64.release/args.gn
+      - run: python --version
+      - run: ninja --version
+      - run: |
+          echo 'dcheck_always_on = false
+          is_debug = false
+          target_os = "android"
+          target_cpu = "arm64"
+          v8_target_cpu = "arm64"
+          is_component_build = false
+          use_custom_libcxx = false
+          v8_android_log_stdout = true
+          v8_enable_i18n_support = false
+          v8_static_library = true
+          v8_use_external_startup_data = false
+          v8_imminent_deprecation_warnings = false
+          clang_use_chrome_plugins = false
+          symbol_level = 0' > v8/out.gn/arm64.release/args.gn
+      - run: cd v8 && cat out.gn/arm64.release/args.gn
+      - run: cd v8 && cat third_party/catapult/tracing/BUILD.gn
+      - name: Build
+        run: cd v8 && ninja -C out.gn/arm64.release v8
+      - run: cd v8 && ls -la
+      - run: cd v8/out.gn && ls -la
+      - run: cd v8/out.gn/arm64.release && ls -la
+      - run: cd v8/out.gn/arm64.release/obj && ls -la
+      - uses: actions/upload-artifact@v2
+        with:
+          name: v8_android_arm64
+          path: |
+            v8/include
+            v8/out.gn/arm64.release/obj
