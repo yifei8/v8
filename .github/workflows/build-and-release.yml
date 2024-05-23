@@ -61,7 +61,6 @@ jobs:
           clang_use_chrome_plugins = false
           symbol_level = 0' > v8/out.gn/arm64.release/args.gn
       - run: cd v8 && cat out.gn/arm64.release/args.gn
-      - run: cd v8 && cat third_party/catapult/tracing/BUILD.gn
       - name: Build
         run: cd v8 && ninja -C out.gn/arm64.release v8
       - run: cd v8 && ls -la
