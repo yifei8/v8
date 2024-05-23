@@ -22,7 +22,7 @@ jobs:
           sudo apt install ninja-build
           git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
       - run: pwd
-      - run: echo "export PATH=\$PATH:/home/runner/work/v8/v8/depot_tools" >> $GITHUB_ENV
+      - run: echo "export PATH=$PATH:/home/runner/work/v8/v8/depot_tools" >> $GITHUB_ENV
       - run: ls -a
       - run: gclient
       - run: /home/runner/work/v8/v8/depot_tools/fetch v8
