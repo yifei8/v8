@@ -40,7 +40,7 @@ jobs:
           echo "$DEPOT_TOOLS" >> $GITHUB_PATH
       - run: cd v8_build && gclient
       - run: cd v8_build && fetch v8
-      - run: cd v8_build/v8 && git checkout main
+      - run: cd v8_build/v8 && git checkout 12.6-lkgr
       - run: cd v8_build/v8 && tools/dev/v8gen.py arm64.release -vv
       - run: cd v8_build && ls -a
       - run: cd v8_build/v8 && ls -a
